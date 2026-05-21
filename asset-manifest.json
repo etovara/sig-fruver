@@ -1,0 +1,15 @@
+{
+  "files": {
+    "main.css": "/sig-fruver/static/css/main.4e0e4aa1.css",
+    "main.js": "/sig-fruver/static/js/main.d75b4a02.js",
+    "static/js/453.e7cc3d3e.chunk.js": "/sig-fruver/static/js/453.e7cc3d3e.chunk.js",
+    "index.html": "/sig-fruver/index.html",
+    "main.4e0e4aa1.css.map": "/sig-fruver/static/css/main.4e0e4aa1.css.map",
+    "main.d75b4a02.js.map": "/sig-fruver/static/js/main.d75b4a02.js.map",
+    "453.e7cc3d3e.chunk.js.map": "/sig-fruver/static/js/453.e7cc3d3e.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.4e0e4aa1.css",
+    "static/js/main.d75b4a02.js"
+  ]
+}
