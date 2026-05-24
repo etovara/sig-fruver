@@ -1,5 +1,5 @@
 import React from 'react';
-import { ShoppingCart, Package, LayoutDashboard, Settings, BarChart3, TrendingUp, AlertTriangle, LogOut, User, Lock } from 'lucide-react';
+import { ShoppingCart, Package, LayoutDashboard, Settings, BarChart3, TrendingUp, AlertTriangle } from 'lucide-react';
 
 // --- Tipos de Datos ---
 type Rol = 'Administrador' | 'Operador';
@@ -25,9 +25,7 @@ interface ItemCarrito extends Producto {
 // --- Componente Principal ---
 const App: React.FC = () => {
   const [tasaBCV] = React.useState(36.50);
-  const [usuario, setUsuario] = React.useState<Usuario | null>(null);
-  const [credentials, setCredentials] = React.useState({ username: '', password: '' });
-  const [error, setError] = React.useState('');
+  const [usuario] = React.useState<Usuario>({ username: 'Administrador', rol: 'Administrador' });
   const [vista, setVista] = React.useState<'Dashboard' | 'Ventas' | 'Inventario'>('Ventas');
   const [carrito, setCarrito] = React.useState<ItemCarrito[]>([]);
 
@@ -39,89 +37,11 @@ const App: React.FC = () => {
     { id: '4', nombre: 'Cebolla Blanca', precioUSD: 0.90, stockKG: 15, categoria: 'Verduras' },
   ];
 
-  const handleLogin = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (credentials.username === 'admin' && credentials.password === 'admin123') {
-      setUsuario({ username: 'Administrador', rol: 'Administrador' });
-      setVista('Dashboard');
-      setError('');
-    } else if (credentials.username === 'operador' && credentials.password === 'operador123') {
-      setUsuario({ username: 'Operador de Caja', rol: 'Operador' });
-      setVista('Ventas');
-      setError('');
-    } else {
-      setError('Credenciales incorrectas. Intente de nuevo.');
-    }
-  };
-
-  const handleLogout = () => {
-    setUsuario(null);
-    setCredentials({ username: '', password: '' });
-    setCarrito([]);
-  };
-
   const totalUSD = carrito.reduce((sum, item) => sum + item.subtotal, 0);
   const totalBS = totalUSD * tasaBCV;
   const igtf = totalUSD * 0.03;
 
-  // --- Pantalla de Login ---
-  if (!usuario) {
-    return (
-      <div className="min-h-screen bg-green-900 flex items-center justify-center p-4 font-sans">
-        <div className="bg-white w-full max-w-md rounded-2xl shadow-2xl overflow-hidden">
-          <div className="bg-green-800 p-8 text-center text-white">
-            <div className="text-5xl mb-2">🥬</div>
-            <h1 className="text-2xl font-bold">SIG-FRUVER</h1>
-            <p className="text-green-100 text-sm mt-1">Sistema de Gestión de Fruterías</p>
-          </div>
-          <form onSubmit={handleLogin} className="p-8 space-y-6">
-            {error && (
-              <div className="bg-red-50 text-red-600 p-3 rounded-lg text-sm font-medium border border-red-100">
-                {error}
-              </div>
-            )}
-            <div className="space-y-2">
-              <label className="text-sm font-semibold text-gray-600 flex items-center gap-2">
-                <User size={16} /> Usuario
-              </label>
-              <input 
-                type="text" 
-                required
-                className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-green-500 outline-none transition"
-                placeholder="Ingrese su usuario"
-                value={credentials.username}
-                onChange={(e) => setCredentials({...credentials, username: e.target.value})}
-              />
-            </div>
-            <div className="space-y-2">
-              <label className="text-sm font-semibold text-gray-600 flex items-center gap-2">
-                <Lock size={16} /> Contraseña
-              </label>
-              <input 
-                type="password" 
-                required
-                className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-green-500 outline-none transition"
-                placeholder="••••••••"
-                value={credentials.password}
-                onChange={(e) => setCredentials({...credentials, password: e.target.value})}
-              />
-            </div>
-            <button 
-              type="submit"
-              className="w-full bg-green-600 text-white font-bold py-3 rounded-xl hover:bg-green-700 transition shadow-lg shadow-green-100"
-            >
-              Iniciar Sesión
-            </button>
-            <div className="text-center text-xs text-gray-400 mt-4">
-              Demo: admin/admin123 | operador/operador123
-            </div>
-          </form>
-        </div>
-      </div>
-    );
-  }
-
-  // --- Aplicación Principal (Después del Login) ---
+  // --- Aplicación Principal ---
   return (
     <div className="flex h-screen bg-gray-100 font-sans">
       {/* Sidebar */}
@@ -173,12 +93,6 @@ const App: React.FC = () => {
               <Settings size={18} /> Configuración
             </button>
           )}
-          <button 
-            onClick={handleLogout}
-            className="flex items-center gap-3 text-red-300 hover:text-red-100 transition w-full px-2 py-2 text-sm font-bold"
-          >
-            <LogOut size={18} /> Cerrar Sesión
-          </button>
         </div>
       </div>
 
