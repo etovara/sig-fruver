@@ -79,6 +79,7 @@ const App: React.FC = () => {
   const handleProcesarVenta = () => {
     if (carrito.length === 0) return;
     
+    // 1. Verificar stock suficiente
     for (const item of carrito) {
       const prod = productos.find(p => p.id === item.id);
       if (!prod || prod.stockKG < item.peso) {
@@ -97,13 +98,36 @@ const App: React.FC = () => {
 
     const nuevosProductos = productos.map(p => {
       const itemVendido = carrito.find(item => item.id === p.id);
-      return itemVendido ? { ...p, stockKG: p.stockKG - itemVendido.peso } : p;
+      return itemVendido ? { ...p, stockKG: Number((p.stockKG - itemVendido.peso).toFixed(3)) } : p;
     });
 
     setVentas([nuevaVenta, ...ventas]);
     setProductos(nuevosProductos);
     setCarrito([]);
     showNotif('success', 'Venta procesada con éxito');
+  };
+
+  const updatePeso = (id: string, nuevoPeso: number) => {
+    if (nuevoPeso < 0) return;
+    const item = carrito.find(i => i.id === id);
+    if (!item) return;
+    
+    setCarrito(carrito.map(i => 
+      i.id === id ? { ...i, peso: nuevoPeso, subtotal: Number((nuevoPeso * i.precioUSD).toFixed(2)) } : i
+    ));
+  };
+
+  const addToCarrito = (p: Producto) => {
+    const itemExistente = carrito.find(item => item.id === p.id);
+    if (itemExistente) {
+      updatePeso(p.id, itemExistente.peso + 1);
+    } else {
+      setCarrito([...carrito, { ...p, peso: 1, subtotal: p.precioUSD }]);
+    }
+  };
+
+  const removeFromCarrito = (id: string) => {
+    setCarrito(carrito.filter(i => i.id !== id));
   };
 
   const handleReponerStock = (id: string, cantidad: number) => {
@@ -334,14 +358,7 @@ const App: React.FC = () => {
                     <button 
                       key={p.id}
                       disabled={p.stockKG <= 0}
-                      onClick={() => {
-                        const itemExistente = carrito.find(item => item.id === p.id);
-                        if (itemExistente) {
-                          setCarrito(carrito.map(item => item.id === p.id ? {...item, peso: item.peso + 1, subtotal: (item.peso + 1) * p.precioUSD} : item));
-                        } else {
-                          setCarrito([...carrito, {...p, peso: 1, subtotal: p.precioUSD}]);
-                        }
-                      }}
+                      onClick={() => addToCarrito(p)}
                       className={`p-4 rounded-xl shadow-sm border transition text-left relative group ${p.stockKG <= 0 ? 'bg-gray-50 opacity-50 cursor-not-allowed' : 'bg-white hover:border-green-500 hover:shadow-md'}`}
                     >
                       <div className="text-[10px] font-bold text-green-600 mb-1 uppercase">{p.categoria}</div>
@@ -369,12 +386,27 @@ const App: React.FC = () => {
                     </div>
                   ) : (
                     carrito.map(item => (
-                      <div key={item.id} className="flex justify-between items-center bg-white p-3 rounded-lg border border-gray-100 shadow-sm">
-                        <div className="min-w-0 pr-2">
-                          <div className="font-bold text-sm truncate">{item.nombre}</div>
-                          <div className="text-[10px] text-gray-400 uppercase">{item.peso.toFixed(3)} kg x $ {item.precioUSD.toFixed(2)}</div>
+                      <div key={item.id} className="bg-white p-3 rounded-lg border border-gray-100 shadow-sm space-y-2">
+                        <div className="flex justify-between items-start">
+                          <div className="min-w-0 pr-2">
+                            <div className="font-bold text-sm truncate">{item.nombre}</div>
+                            <div className="text-[10px] text-gray-400 uppercase">$ {item.precioUSD.toFixed(2)} / KG</div>
+                          </div>
+                          <button onClick={() => removeFromCarrito(item.id)} className="text-red-400 hover:text-red-600"><Trash2 size={14} /></button>
                         </div>
-                        <div className="font-black text-gray-800">$ {item.subtotal.toFixed(2)}</div>
+                        <div className="flex items-center justify-between gap-4">
+                          <div className="flex items-center gap-2">
+                            <input 
+                              type="number" 
+                              step="0.001"
+                              className="w-20 px-2 py-1 border rounded text-sm font-bold focus:ring-2 focus:ring-green-500 outline-none"
+                              value={item.peso}
+                              onChange={(e) => updatePeso(item.id, parseFloat(e.target.value) || 0)}
+                            />
+                            <span className="text-xs font-bold text-gray-500">KG</span>
+                          </div>
+                          <div className="font-black text-gray-800">$ {item.subtotal.toFixed(2)}</div>
+                        </div>
                       </div>
                     ))
                   )}
